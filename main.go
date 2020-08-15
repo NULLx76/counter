@@ -29,22 +29,22 @@ func handleHttp(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	switch r.Method {
-		case "GET":
-			_, err := fmt.Fprint(w, marshal(r.RequestURI, s.Get(r.RequestURI)))
-			if err != nil {
-				http.Error(w, "Internal Server Error", 500)
-			}
-		case "PUT":
-			s.Increment(r.RequestURI)
-			_, err := fmt.Fprint(w, marshal(r.RequestURI, s.Get(r.RequestURI)))
-			if err != nil {
-				http.Error(w, "Internal Server Error", 500)
-			}
-		case "POST":
-			fallthrough
-		default:
-			http.Error(w, "Unsupported method", 400)
-			return
+	case "GET":
+		_, err := fmt.Fprint(w, marshal(r.RequestURI, s.Get(r.RequestURI)))
+		if err != nil {
+			http.Error(w, "Internal Server Error", 500)
+		}
+	case "PUT":
+		s.Increment(r.RequestURI)
+		_, err := fmt.Fprint(w, marshal(r.RequestURI, s.Get(r.RequestURI)))
+		if err != nil {
+			http.Error(w, "Internal Server Error", 500)
+		}
+	case "POST":
+		fallthrough
+	default:
+		http.Error(w, "Unsupported method", 400)
+		return
 	}
 }
 

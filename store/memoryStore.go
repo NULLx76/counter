@@ -3,8 +3,8 @@ package store
 import "sync"
 
 type MemoryStore struct {
-	data	map[string]int
-	mutex 	sync.RWMutex
+	data  map[string]int
+	mutex sync.RWMutex
 }
 
 func NewMemoryStore() *MemoryStore {
