@@ -3,24 +3,24 @@ package store
 import "sync"
 
 type MemoryStore struct {
-	data  map[string]int
+	data  map[string]Value
 	mutex sync.RWMutex
 }
 
 func NewMemoryStore() *MemoryStore {
 	return &MemoryStore{
-		data:  make(map[string]int),
+		data:  make(map[string]Value),
 		mutex: sync.RWMutex{},
 	}
 }
 
-func (s *MemoryStore) Get(key string) int {
+func (s *MemoryStore) Get(key string) Value {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 	return s.data[key]
 }
 
-func (s *MemoryStore) Set(key string, value int) {
+func (s *MemoryStore) Set(key string, value Value) {
 	s.mutex.Lock()
 	s.data[key] = value
 	s.mutex.Unlock()
@@ -28,12 +28,16 @@ func (s *MemoryStore) Set(key string, value int) {
 
 func (s *MemoryStore) Increment(key string) {
 	s.mutex.Lock()
-	s.data[key] = s.data[key] + 1
+	d := s.data[key]
+	d.Count++
+	s.data[key] = d
 	s.mutex.Unlock()
 }
 
 func (s *MemoryStore) Decrement(key string) {
 	s.mutex.Lock()
-	s.data[key] = s.data[key] - 1
+	d := s.data[key]
+	d.Count--
+	s.data[key] = d
 	s.mutex.Unlock()
 }
