@@ -2,11 +2,13 @@ package store
 
 import "sync"
 
+// MemoryStore is a simple in memory and thread-safe implementation of the Repository interface
 type MemoryStore struct {
 	data  map[string]Value
 	mutex sync.RWMutex
 }
 
+// NewMemoryStore creates a new store to save your date
 func NewMemoryStore() *MemoryStore {
 	return &MemoryStore{
 		data:  make(map[string]Value),
