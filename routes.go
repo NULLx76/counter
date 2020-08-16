@@ -2,21 +2,26 @@ package main
 
 import (
 	"counter/store"
-	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
 	"net/http"
 	"strings"
 )
 
-// TODO: Tests
-
-func marshal(key string, value store.Value) string {
-	return fmt.Sprintf("{ \"%v\": \"%v\" }", key, value.Count)
+type Routes struct {
+	repo store.Repository
 }
 
-func authenticate(w http.ResponseWriter, r *http.Request) bool {
-	c := s.Get(r.RequestURI)
+func NewRoutes(repo store.Repository) Routes {
+	return Routes{repo}
+}
+
+func marshal(key string, value store.Value) string {
+	return fmt.Sprintf("{ \"%v\": %v }", key, value.Count)
+}
+
+func (rs *Routes) authenticate(w http.ResponseWriter, r *http.Request) bool {
+	c := rs.repo.Get(r.RequestURI)
 
 	header := r.Header.Get("Authorization")
 	if !strings.HasPrefix(header, "Bearer ") {
@@ -38,8 +43,8 @@ func authenticate(w http.ResponseWriter, r *http.Request) bool {
 	}
 }
 
-func getCounter(w http.ResponseWriter, r *http.Request) {
-	c := s.Get(r.RequestURI)
+func (rs *Routes) GetCounter(w http.ResponseWriter, r *http.Request) {
+	c := rs.repo.Get(r.RequestURI)
 	if c.AccessKey == uuid.Nil {
 		http.Error(w, "Counter not yet created", http.StatusNotFound)
 		return
@@ -51,49 +56,50 @@ func getCounter(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func incrementCounter(w http.ResponseWriter, r *http.Request) {
-	c := s.Get(r.RequestURI)
+func (rs *Routes) IncrementCounter(w http.ResponseWriter, r *http.Request) {
+	c := rs.repo.Get(r.RequestURI)
 	if c.AccessKey == uuid.Nil {
 		http.Error(w, "Counter not yet created", http.StatusNotFound)
 		return
 	}
 
-	if !authenticate(w, r) {
+	if !rs.authenticate(w, r) {
 		return
 	}
 
-	s.Increment(r.RequestURI)
-	getCounter(w, r)
+	rs.repo.Increment(r.RequestURI)
+	rs.GetCounter(w, r)
 }
 
-func createCounter(w http.ResponseWriter, r *http.Request) {
-	c := s.Get(r.RequestURI)
+func (rs *Routes) CreateCounter(w http.ResponseWriter, r *http.Request) {
+	c := rs.repo.Get(r.RequestURI)
 	if c.AccessKey != uuid.Nil {
 		http.Error(w, "Counter already exists", http.StatusConflict)
 		return
 	}
 
+	w.WriteHeader(http.StatusCreated)
+
 	v := store.Value{Count: 0, AccessKey: uuid.New()}
-	s.Set(r.RequestURI, v)
+	rs.repo.Set(r.RequestURI, v)
 
 	w.Header().Set("Authorization", "Bearer " + v.AccessKey.String())
-	w.WriteHeader(http.StatusCreated)
-	err := json.NewEncoder(w).Encode(v)
+	_, err := fmt.Fprintf(w, "{ \"%v\": %v, \"AccessKey\": \"%v\" }", r.RequestURI, v.Count, v.AccessKey.String())
 	if err != nil {
-		http.Error(w, "Internal server error encountered when marshalling Value to json", http.StatusInternalServerError)
+		http.Error(w, "Internal server error encountered when formatting response", http.StatusInternalServerError)
 	}
 }
 
-func deleteCounter(w http.ResponseWriter, r *http.Request) {
-	c := s.Get(r.RequestURI)
+func (rs *Routes) DeleteCounter(w http.ResponseWriter, r *http.Request) {
+	c := rs.repo.Get(r.RequestURI)
 	if c.AccessKey == uuid.Nil {
 		http.Error(w, "Counter not yet created", http.StatusNotFound)
 		return
 	}
 
-	if !authenticate(w, r) {
+	if !rs.authenticate(w, r) {
 		return
 	}
 
-	s.Set(r.RequestURI, store.Value{})
+	rs.repo.Set(r.RequestURI, store.Value{})
 }

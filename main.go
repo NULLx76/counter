@@ -9,17 +9,16 @@ import (
 	"time"
 )
 
-var s store.Repository
-
 func main() {
-	s = store.NewMemoryStore()
+	var s store.Repository = store.NewMemoryStore()
+	rs := NewRoutes(s)
 
 	// Router
 	r := mux.NewRouter()
-	r.PathPrefix("/").Methods("GET").HandlerFunc(getCounter)
-	r.PathPrefix("/").Methods("PUT").HandlerFunc(incrementCounter)
-	r.PathPrefix("/").Methods("POST").HandlerFunc(createCounter)
-	r.PathPrefix("/").Methods("DELETE").HandlerFunc(deleteCounter)
+	r.PathPrefix("/").Methods("GET").HandlerFunc(rs.GetCounter)
+	r.PathPrefix("/").Methods("PUT").HandlerFunc(rs.IncrementCounter)
+	r.PathPrefix("/").Methods("POST").HandlerFunc(rs.CreateCounter)
+	r.PathPrefix("/").Methods("DELETE").HandlerFunc(rs.DeleteCounter)
 	r.Use(rootMiddleware)
 
 	srv := &http.Server{
