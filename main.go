@@ -26,6 +26,9 @@ func main() {
 			return store.NewDiskvStore(cfg.DiskPath), nil
 		case dbRedis:
 			return store.NewRedisStore(cfg.DBHosts[0]), nil
+		case dbNull:
+			log.Warn("Welp I guess you are")
+			return store.NewNullStore(), nil
 		default:
 			return nil, fmt.Errorf("unsupported database: %v", cfg.DB)
 		}
@@ -57,10 +60,13 @@ func main() {
 	log.Fatal(srv.ListenAndServe())
 }
 
+var gitHash string
+
 func rootMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.RequestURI == "/" {
-			_, _ = fmt.Fprint(w, "Hello World!")
+			_, _ = fmt.Fprintln(w, "Hello World!")
+			_, _ = fmt.Fprintln(w, "Git SHA: " + gitHash)
 		} else {
 			w.Header().Set("Content-Type", "application/json")
 			next.ServeHTTP(w, r)

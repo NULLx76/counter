@@ -10,6 +10,7 @@ const (
 	dbEtcd3     = "etcd3"
 	dbDisk      = "disk"
 	dbRedis     = "redis"
+	dbNull		= "null"
 )
 
 type config struct {
@@ -36,13 +37,17 @@ func getConfig() (cfg config) {
 		cfg.DiskPath = "./data"
 	}
 
-	if cfg.Address == "" {
-		log.Info("Defaulting to :8080 address")
-		cfg.Address = ":8080"
+	if cfg.DB == dbNull {
+		log.Warn("Are you sure?")
 	}
 
 	if len(cfg.DBHosts) == 0 && (cfg.DB == dbRedis || cfg.DB == dbEtcd3) {
 		log.Fatalf("No database host(s) specified but was required")
+	}
+
+	if cfg.Address == "" {
+		log.Info("Defaulting to :8080 address")
+		cfg.Address = ":8080"
 	}
 
 	return

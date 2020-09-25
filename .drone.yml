@@ -20,3 +20,5 @@ steps:
       registry: harbor.xirion.net
       repo: library/counter
       tags: latest
+      build_args:
+        - GIT_SHA=${DRONE_COMMIT}
