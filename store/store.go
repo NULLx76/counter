@@ -2,10 +2,12 @@ package store
 
 import "github.com/google/uuid"
 
+//go:generate mockgen -destination mock_store/mock_store.go  . Repository
+
 // Value specifies the structure of each value it contains the key used to modify or delete the key as well
 type Value struct {
 	// Count is the current counter
-	Count     int
+	Count int
 	// AccessKey is the key required to modify this counter
 	AccessKey uuid.UUID
 }
@@ -14,8 +16,10 @@ type Value struct {
 type Repository interface {
 	// Get gets the value of a specified key
 	Get(key string) Value
-	// Set overwrites the value of a specified key with the given value
-	Set(key string, value Value)
+	// Create creates the value with a specified key and value
+	Create(key string, value Value)
+	// Delete deletes the entry with the specified key
+	Delete(key string)
 	// Increment atomically increments the value of the specified key
 	Increment(key string)
 	// Decrement atomically increments the value of the specified key

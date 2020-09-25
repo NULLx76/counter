@@ -22,9 +22,15 @@ func (s *MemoryStore) Get(key string) Value {
 	return s.data[key]
 }
 
-func (s *MemoryStore) Set(key string, value Value) {
+func (s *MemoryStore) Create(key string, value Value) {
 	s.mutex.Lock()
 	s.data[key] = value
+	s.mutex.Unlock()
+}
+
+func (s *MemoryStore) Delete(key string) {
+	s.mutex.Lock()
+	delete(s.data, key)
 	s.mutex.Unlock()
 }
 
