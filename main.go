@@ -11,9 +11,21 @@ import (
 
 func main() {
 	log.Info("Starting up")
-	s, err := store.NewEtcdStore([]string{"http://localhost:2379"})
+
+	cfg := getConfig()
+
+	s, err := func() (store.Repository, error) {
+		switch cfg.DB {
+		case dbMemory:
+			return store.NewMemoryStore(), nil
+		case dbEtcd3:
+			return store.NewEtcdStore([]string{"http://localhost:2379"})
+		default:
+			return nil, fmt.Errorf("unsupported database: %v", cfg.DB)
+		}
+	}()
 	if err != nil {
-		log.Fatalf("Couldn't connect to etcd")
+		log.Fatalf("Failed to create database: %v", err)
 	}
 
 	defer s.Close()
@@ -29,7 +41,7 @@ func main() {
 
 	srv := &http.Server{
 		Handler: r,
-		Addr:    ":8080",
+		Addr:    cfg.Address,
 		// Good practice: enforce timeouts for servers you create!
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
