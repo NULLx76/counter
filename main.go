@@ -4,13 +4,19 @@ import (
 	"counter/store"
 	"fmt"
 	"github.com/gorilla/mux"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"time"
 )
 
 func main() {
-	var s store.Repository = store.NewMemoryStore()
+	log.Info("Starting up")
+	s, err := store.NewEtcdStore([]string{"http://localhost:2379"})
+	if err != nil {
+		log.Fatalf("Couldn't connect to etcd")
+	}
+
+	defer s.Close()
 	rs := NewRoutes(s)
 
 	// Router
@@ -22,13 +28,14 @@ func main() {
 	r.Use(rootMiddleware)
 
 	srv := &http.Server{
-		Handler:      r,
-		Addr:         ":8080",
+		Handler: r,
+		Addr:    ":8080",
 		// Good practice: enforce timeouts for servers you create!
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
 
+	log.Infof("Started listing on %v", srv.Addr)
 	log.Fatal(srv.ListenAndServe())
 }
 

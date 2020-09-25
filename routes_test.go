@@ -43,7 +43,7 @@ func TestRoutes_GetCounter(t *testing.T) {
 
 	repo := mock_store.NewMockRepository(ctrl)
 
-	repo.EXPECT().Get(uri).Return(v).Times(1)
+	repo.EXPECT().Get(uri).Return(v, nil).Times(1)
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodGet, uri, nil)
@@ -74,7 +74,7 @@ func TestRoutes_GetCounter404(t *testing.T) {
 
 	repo := mock_store.NewMockRepository(ctrl)
 
-	repo.EXPECT().Get(uri).Return(v).Times(1)
+	repo.EXPECT().Get(uri).Return(v, nil).Times(1)
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodGet, uri, nil)
@@ -100,7 +100,7 @@ func TestRoutes_authenticate(t *testing.T) {
 
 	repo := mock_store.NewMockRepository(ctrl)
 
-	repo.EXPECT().Get(uri).Return(v).Times(1)
+	repo.EXPECT().Get(uri).Return(v, nil).Times(1)
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodGet, uri, nil)
@@ -124,7 +124,7 @@ func TestRoutes_authenticate_noheader(t *testing.T) {
 
 	repo := mock_store.NewMockRepository(ctrl)
 
-	repo.EXPECT().Get(uri).Return(v).Times(1)
+	repo.EXPECT().Get(uri).Return(v, nil).Times(1)
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodGet, uri, nil)
@@ -157,7 +157,7 @@ func helperAuthenticateWrongheader(t *testing.T, header string) {
 
 	repo := mock_store.NewMockRepository(ctrl)
 
-	repo.EXPECT().Get(uri).Return(v).Times(1)
+	repo.EXPECT().Get(uri).Return(v, nil).Times(1)
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodGet, uri, nil)
@@ -182,8 +182,8 @@ func TestRoutes_IncrementCounter(t *testing.T) {
 
 	repo := mock_store.NewMockRepository(ctrl)
 
-	repo.EXPECT().Get(uri).Return(v).MinTimes(1)
-	repo.EXPECT().Increment(uri).Times(1)
+	repo.EXPECT().Get(uri).Return(v, nil).MinTimes(1)
+	repo.EXPECT().Increment(uri).Return(nil).Times(1)
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPut, uri, nil)
@@ -215,7 +215,7 @@ func TestRoutes_IncrementCounterUnAuth(t *testing.T) {
 
 	repo := mock_store.NewMockRepository(ctrl)
 
-	repo.EXPECT().Get(uri).Return(v).MinTimes(1)
+	repo.EXPECT().Get(uri).Return(v, nil).MinTimes(1)
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPut, uri, nil)
@@ -241,7 +241,7 @@ func TestRoutes_IncrementCounterNX(t *testing.T) {
 
 	repo := mock_store.NewMockRepository(ctrl)
 
-	repo.EXPECT().Get(uri).Return(v).MinTimes(1)
+	repo.EXPECT().Get(uri).Return(v, nil).MinTimes(1)
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPut, uri, nil)
@@ -267,7 +267,7 @@ func TestRoutes_CreateCounter_Exists(t *testing.T) {
 
 	repo := mock_store.NewMockRepository(ctrl)
 
-	repo.EXPECT().Get(uri).Return(v).MinTimes(1)
+	repo.EXPECT().Get(uri).Return(v, nil).MinTimes(1)
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodGet, uri, nil)
@@ -294,8 +294,8 @@ func TestRoutes_CreateCounter(t *testing.T) {
 
 	repo := mock_store.NewMockRepository(ctrl)
 
-	repo.EXPECT().Get(uri).Return(v).Times(1)
-	repo.EXPECT().Create(uri, gomock.Any()).Times(1)
+	repo.EXPECT().Get(uri).Return(v, nil).Times(1)
+	repo.EXPECT().Create(uri, gomock.Any()).Return(nil).Times(1)
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, uri, nil)
@@ -334,8 +334,8 @@ func TestRoutes_DeleteCounter(t *testing.T) {
 
 	repo := mock_store.NewMockRepository(ctrl)
 
-	repo.EXPECT().Get(uri).Return(v).MinTimes(1)
-	repo.EXPECT().Delete(uri).Times(1)
+	repo.EXPECT().Get(uri).Return(v, nil).MinTimes(1)
+	repo.EXPECT().Delete(uri).Return(nil).Times(1)
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, uri, nil)
@@ -362,7 +362,7 @@ func TestRoutes_DeleteCounterUnAuth(t *testing.T) {
 
 	repo := mock_store.NewMockRepository(ctrl)
 
-	repo.EXPECT().Get(uri).Return(v).MinTimes(1)
+	repo.EXPECT().Get(uri).Return(v, nil).MinTimes(1)
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, uri, nil)
@@ -388,7 +388,7 @@ func TestRoutes_DeleteCounterNX(t *testing.T) {
 
 	repo := mock_store.NewMockRepository(ctrl)
 
-	repo.EXPECT().Get(uri).Return(v).MinTimes(1)
+	repo.EXPECT().Get(uri).Return(v, nil).MinTimes(1)
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, uri, nil)

@@ -21,7 +21,8 @@ func TestMemoryStore_Create(t *testing.T) {
 	}
 
 	s := NewMemoryStore()
-	s.Create(key, val)
+	err := s.Create(key, val)
+	assert.NoError(t, err)
 
 	assert.Equal(t, s.data[key], val)
 }
@@ -34,9 +35,14 @@ func TestMemoryStore_Get(t *testing.T) {
 	}
 
 	s := NewMemoryStore()
-	s.Create(key, val)
 
-	assert.Equal(t, val, s.Get(key))
+	err := s.Create(key, val)
+	assert.NoError(t, err)
+
+	gv, err := s.Get(key)
+	assert.NoError(t, err)
+
+	assert.Equal(t, val, gv)
 }
 
 func TestMemoryStore_Delete(t *testing.T) {
@@ -47,10 +53,20 @@ func TestMemoryStore_Delete(t *testing.T) {
 	}
 
 	s := NewMemoryStore()
-	s.Create(key, val)
-	assert.Equal(t, val, s.Get(key))
-	s.Delete(key)
-	assert.Equal(t, Value{}, s.Get(key))
+
+	err := s.Create(key, val)
+	assert.NoError(t, err)
+
+	nv, err := s.Get(key)
+	assert.NoError(t, err)
+	assert.Equal(t, val, nv)
+
+	err = s.Delete(key)
+	assert.NoError(t, err)
+
+	nv, err = s.Get(key)
+	assert.NoError(t, err)
+	assert.Equal(t, Value{}, nv)
 }
 
 func TestMemoryStore_Increment(t *testing.T) {
@@ -61,12 +77,17 @@ func TestMemoryStore_Increment(t *testing.T) {
 	}
 
 	s := NewMemoryStore()
-	s.Create(key, val)
-	s.Increment(key)
+
+	err := s.Create(key, val)
+	assert.NoError(t, err)
+
+	assert.NoError(t, s.Increment(key))
 
 	val.Count++
 
-	assert.Equal(t, val, s.Get(key))
+	nv, err := s.Get(key)
+	assert.NoError(t, err)
+	assert.Equal(t, val, nv)
 }
 
 func TestMemoryStore_Decrement(t *testing.T) {
@@ -77,10 +98,15 @@ func TestMemoryStore_Decrement(t *testing.T) {
 	}
 
 	s := NewMemoryStore()
-	s.Create(key, val)
-	s.Decrement(key)
+
+	err := s.Create(key, val)
+	assert.NoError(t, err)
+
+	assert.NoError(t, s.Decrement(key))
 
 	val.Count--
 
-	assert.Equal(t, val, s.Get(key))
+	nv, err := s.Get(key)
+	assert.NoError(t, err)
+	assert.Equal(t, val, nv)
 }

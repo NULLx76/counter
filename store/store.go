@@ -15,13 +15,15 @@ type Value struct {
 // Repository defines the interface for storage backends
 type Repository interface {
 	// Get gets the value of a specified key
-	Get(key string) Value
+	Get(key string) (Value, error)
 	// Create creates the value with a specified key and value
-	Create(key string, value Value)
+	Create(key string, value Value) error
 	// Delete deletes the entry with the specified key
-	Delete(key string)
+	Delete(key string) error
 	// Increment atomically increments the value of the specified key
-	Increment(key string)
+	Increment(key string) error
 	// Decrement atomically increments the value of the specified key
-	Decrement(key string)
+	Decrement(key string) error
+	// Close is the destructor of a repository and should clean up any connection, write back to disk etc.
+	Close() error
 }

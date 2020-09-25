@@ -33,10 +33,26 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
-// Create mocks base method
-func (m *MockRepository) Create(arg0 string, arg1 store.Value) {
+// Close mocks base method
+func (m *MockRepository) Close() error {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Create", arg0, arg1)
+	ret := m.ctrl.Call(m, "Close")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Close indicates an expected call of Close
+func (mr *MockRepositoryMockRecorder) Close() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockRepository)(nil).Close))
+}
+
+// Create mocks base method
+func (m *MockRepository) Create(arg0 string, arg1 store.Value) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Create", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Create indicates an expected call of Create
@@ -46,9 +62,11 @@ func (mr *MockRepositoryMockRecorder) Create(arg0, arg1 interface{}) *gomock.Cal
 }
 
 // Decrement mocks base method
-func (m *MockRepository) Decrement(arg0 string) {
+func (m *MockRepository) Decrement(arg0 string) error {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Decrement", arg0)
+	ret := m.ctrl.Call(m, "Decrement", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Decrement indicates an expected call of Decrement
@@ -58,9 +76,11 @@ func (mr *MockRepositoryMockRecorder) Decrement(arg0 interface{}) *gomock.Call {
 }
 
 // Delete mocks base method
-func (m *MockRepository) Delete(arg0 string) {
+func (m *MockRepository) Delete(arg0 string) error {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Delete", arg0)
+	ret := m.ctrl.Call(m, "Delete", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Delete indicates an expected call of Delete
@@ -70,11 +90,12 @@ func (mr *MockRepositoryMockRecorder) Delete(arg0 interface{}) *gomock.Call {
 }
 
 // Get mocks base method
-func (m *MockRepository) Get(arg0 string) store.Value {
+func (m *MockRepository) Get(arg0 string) (store.Value, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", arg0)
 	ret0, _ := ret[0].(store.Value)
-	return ret0
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Get indicates an expected call of Get
@@ -84,9 +105,11 @@ func (mr *MockRepositoryMockRecorder) Get(arg0 interface{}) *gomock.Call {
 }
 
 // Increment mocks base method
-func (m *MockRepository) Increment(arg0 string) {
+func (m *MockRepository) Increment(arg0 string) error {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Increment", arg0)
+	ret := m.ctrl.Call(m, "Increment", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Increment indicates an expected call of Increment
