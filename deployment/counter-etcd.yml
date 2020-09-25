@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: counter-etcd
+spec:
+  selector:
+    app: counter-etcd
+  ports:
+    - protocol: TCP
+      port: 2379
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: counter-etcd
+  labels:
+    app: counter-etcd
+spec:
+  selector:
+    matchLabels:
+      app: counter-etcd
+  replicas: 1
+  serviceName: counter-etcd
+  volumeClaimTemplates:
+    - kind: PersistentVolumeClaim
+      apiVersion: v1
+      metadata:
+        name: counter-etcd-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+        storageClassName: longhorn
+  template:
+    metadata:
+      labels:
+        app: counter-etcd
+    spec:
+      containers:
+        - name: etcd
+          image: quay.io/coreos/etcd
+          ports:
+            - name: client
+              containerPort: 2379
+            - name: peer
+              containerPort: 2380
+          command:
+            - /bin/sh
+            - -c
+            - |
+              exec etcd \
+              --data-dir=/data \
+              --name node1 \
+              --initial-advertise-peer-urls http://counter-etcd-0.counter-etcd:2380 \
+              --listen-peer-urls http://0.0.0.0:2380
+              --advertise-client-urls http://counter-etcd-0.counter-etcd:2379 \
+              --listen-client-urls http://0.0.0.0:2379 \
+              --initial-cluster node1=http://counter-etcd-0.counter-etcd:2380
+          volumeMounts:
+            - name: counter-etcd-data
+              mountPath: /data

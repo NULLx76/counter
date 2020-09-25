@@ -9,6 +9,7 @@ import (
 
 type EtcdStore struct {
 	cli *clientv3.Client
+	ctx context.Context
 }
 
 func NewEtcdStore(endpoints []string) (*EtcdStore, error) {
@@ -26,6 +27,7 @@ func NewEtcdStoreFromConfig(cfg clientv3.Config) (*EtcdStore, error) {
 
 	return &EtcdStore{
 		cli,
+		context.Background(),
 	}, nil
 }
 
@@ -35,7 +37,7 @@ func (etcd *EtcdStore) put(key string, value Value) error {
 		return err
 	}
 
-	_, err = etcd.cli.Put(context.Background(), key, string(b))
+	_, err = etcd.cli.Put(etcd.ctx, key, string(b))
 	return err
 }
 
@@ -44,12 +46,12 @@ func (etcd *EtcdStore) Create(key string, value Value) error {
 }
 
 func (etcd *EtcdStore) Delete(key string) error {
-	_, err := etcd.cli.Delete(context.Background(), key)
+	_, err := etcd.cli.Delete(etcd.ctx, key)
 	return err
 }
 
 func (etcd *EtcdStore) Get(key string) (Value, error) {
-	gr, err := etcd.cli.Get(context.Background(), key)
+	gr, err := etcd.cli.Get(etcd.ctx, key)
 	if err != nil {
 		return Value{}, err
 	}

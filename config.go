@@ -9,13 +9,14 @@ const (
 	dbMemory db = "memory"
 	dbEtcd3     = "etcd3"
 	dbDisk      = "disk"
+	dbRedis     = "redis"
 )
 
 type config struct {
-	DB         db       `env:"DB"`
-	Etcd3Nodes []string `env:"ETCD3HOSTS" envSeparator:","`
-	DiskPath   string   `env:"DISKPATH"`
-	Address    string   `env:"ADDRESS"`
+	DB       db       `env:"DB"`
+	DBHosts  []string `env:"DBHOST" envSeparator:","`
+	DiskPath string   `env:"DISKPATH"`
+	Address  string   `env:"ADDRESS"`
 }
 
 func getConfig() (cfg config) {
@@ -38,6 +39,10 @@ func getConfig() (cfg config) {
 	if cfg.Address == "" {
 		log.Info("Defaulting to :8080 address")
 		cfg.Address = ":8080"
+	}
+
+	if len(cfg.DBHosts) == 0 && (cfg.DB == dbRedis || cfg.DB == dbEtcd3) {
+		log.Fatalf("No database host(s) specified but was required")
 	}
 
 	return

@@ -20,10 +20,12 @@ func main() {
 		case dbMemory:
 			return store.NewMemoryStore(), nil
 		case dbEtcd3:
-			return store.NewEtcdStore([]string{"http://localhost:2379"})
+			return store.NewEtcdStore(cfg.DBHosts)
 		case dbDisk:
 			_ = os.Mkdir(cfg.DiskPath, os.ModePerm)
 			return store.NewDiskvStore(cfg.DiskPath), nil
+		case dbRedis:
+			return store.NewRedisStore(cfg.DBHosts[0]), nil
 		default:
 			return nil, fmt.Errorf("unsupported database: %v", cfg.DB)
 		}
