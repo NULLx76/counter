@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: counter
+spec:
+  selector:
+    app: counter
+  ports:
+    - protocol: TCP
+      port: 8080
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: counter
+  labels:
+    app: counter
+    keel.sh/policy: force
+spec:
+  selector:
+    matchLabels:
+      app: counter
+  replicas: 1
+  serviceName: counter
+  volumeClaimTemplates:
+    - kind: PersistentVolumeClaim
+      apiVersion: v1
+      metadata:
+        name: counter-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+        storageClassName: longhorn
+  template:
+    metadata:
+      labels:
+        app: counter
+    spec:
+      containers:
+        - name: counter
+          image: harbor.xirion.net/library/counter
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: DISKPATH
+              value: /data
+            - name: DB
+              value: disk
+            - name: ADDRESS
+              value: ":8080"
+          volumeMounts:
+            - name: counter-data
+              mountPath: /data
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: counter-ingress
+  annotations:
+    kubernetes.io/ingress.class: "traefik"
+spec:
+  rules:
+    - host: "counter.xirion.net"
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: counter
+              servicePort: 8080

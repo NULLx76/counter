@@ -22,9 +22,7 @@ func main() {
 		case dbEtcd3:
 			return store.NewEtcdStore([]string{"http://localhost:2379"})
 		case dbDisk:
-			if err := os.Mkdir(cfg.DiskPath, os.ModePerm); err != nil {
-				return nil, err
-			}
+			_ = os.Mkdir(cfg.DiskPath, os.ModePerm)
 			return store.NewDiskvStore(cfg.DiskPath), nil
 		default:
 			return nil, fmt.Errorf("unsupported database: %v", cfg.DB)
