@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -20,6 +21,11 @@ func main() {
 			return store.NewMemoryStore(), nil
 		case dbEtcd3:
 			return store.NewEtcdStore([]string{"http://localhost:2379"})
+		case dbDisk:
+			if err := os.Mkdir(cfg.DiskPath, os.ModePerm); err != nil {
+				return nil, err
+			}
+			return store.NewDiskvStore(cfg.DiskPath), nil
 		default:
 			return nil, fmt.Errorf("unsupported database: %v", cfg.DB)
 		}

@@ -54,6 +54,6 @@ func (s *MemoryStore) Decrement(key string) error {
 	return nil
 }
 
-func (*MemoryStore) Close() error {
+func (s *MemoryStore) Close() error {
 	return nil
 }

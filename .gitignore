@@ -134,3 +134,5 @@ tags
 [._]*.un~
 
 # End of https://www.toptal.com/developers/gitignore/api/go,intellij+all,vim
+
+data/

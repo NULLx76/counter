@@ -99,13 +99,13 @@ func (rs *Routes) CreateCounter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-
 	v := store.Value{Count: 0, AccessKey: uuid.New()}
 	if err := rs.repo.Create(r.RequestURI, v); err != nil {
 		http.Error(w, "Couldn't create value in database", http.StatusInternalServerError)
 		return
 	}
+
+	w.WriteHeader(http.StatusCreated)
 
 	w.Header().Set("Authorization", "Bearer "+v.AccessKey.String())
 	_, err = fmt.Fprintf(w, "{ \"%v\": %v, \"AccessKey\": \"%v\" }", r.RequestURI, v.Count, v.AccessKey.String())
