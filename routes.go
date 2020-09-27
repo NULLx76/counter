@@ -105,9 +105,9 @@ func (rs *Routes) CreateCounter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Authorization", "Bearer "+v.AccessKey.String())
 	w.WriteHeader(http.StatusCreated)
 
-	w.Header().Set("Authorization", "Bearer "+v.AccessKey.String())
 	_, err = fmt.Fprintf(w, "{ \"%v\": %v, \"AccessKey\": \"%v\" }", r.RequestURI, v.Count, v.AccessKey.String())
 	if err != nil {
 		log.Error("CreateCounter: writing response failed")

@@ -7,11 +7,11 @@ type db string
 
 const (
 	dbMemory db = "memory"
-	dbEtcd3     = "etcd3"
-	dbDisk      = "disk"
-	dbRedis     = "redis"
-	dbBadger    = "badger"
-	dbNull      = "null"
+	dbEtcd3  db = "etcd3"
+	dbDisk   db = "disk"
+	dbRedis  db = "redis"
+	dbBadger db = "badger"
+	dbNull   db = "null"
 )
 
 type config struct {
