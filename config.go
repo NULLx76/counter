@@ -10,7 +10,8 @@ const (
 	dbEtcd3     = "etcd3"
 	dbDisk      = "disk"
 	dbRedis     = "redis"
-	dbNull		= "null"
+	dbBadger    = "badger"
+	dbNull      = "null"
 )
 
 type config struct {

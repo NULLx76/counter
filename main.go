@@ -24,6 +24,9 @@ func main() {
 		case dbDisk:
 			_ = os.Mkdir(cfg.DiskPath, os.ModePerm)
 			return store.NewDiskvStore(cfg.DiskPath), nil
+		case dbBadger:
+			_ = os.Mkdir(cfg.DiskPath, os.ModePerm)
+			return store.NewBadgerStore(cfg.DiskPath)
 		case dbRedis:
 			return store.NewRedisStore(cfg.DBHosts[0]), nil
 		case dbNull:
@@ -36,8 +39,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to create database: %v", err)
 	}
-
 	defer s.Close()
+
+	// Create routes object
 	rs := NewRoutes(s)
 
 	// Router
@@ -66,7 +70,7 @@ func rootMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.RequestURI == "/" {
 			_, _ = fmt.Fprintln(w, "Hello World!")
-			_, _ = fmt.Fprintln(w, "Git SHA: " + gitHash)
+			_, _ = fmt.Fprintln(w, "Git SHA: "+gitHash)
 		} else {
 			w.Header().Set("Content-Type", "application/json")
 			next.ServeHTTP(w, r)
