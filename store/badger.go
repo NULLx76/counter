@@ -37,7 +37,11 @@ func (b *BadgerStore) Get(key string) (v Value, err error) {
 	return v, b.db.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte(key))
 		if err != nil {
-			return err
+			if err == badger.ErrKeyNotFound {
+				return nil
+			} else {
+				return err
+			}
 		}
 
 		return item.Value(func(val []byte) error {
