@@ -11,8 +11,13 @@ steps:
       REDISHOST: redis:6379
     commands:
       - go build
-      - go test -v -race ./...
-
+      - go test -v -race -cover -coverprofile=cover.out -covermode=atomic ./...
+  - name: coverage
+    image: harbor.xirion.net/hub/plugins/codecov
+    settings:
+      token:
+        from_secret: codecov_token
+      files: [ cover.out ]
   - name: kaniko
     image: harbor.xirion.net/hub/banzaicloud/drone-kaniko
     settings:
