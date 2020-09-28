@@ -10,8 +10,9 @@ steps:
       ETCDHOST: etcd:2379
       REDISHOST: redis:6379
     commands:
+      - go get github.com/ory/go-acc
       - go build
-      - go test -v -race -cover -coverprofile=cover.out -covermode=atomic ./...
+      - go-acc -o cover.out ./...
   - name: coverage
     image: harbor.xirion.net/hub/plugins/codecov
     settings:
