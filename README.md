@@ -2,6 +2,8 @@ Counter
 ===
 [![Drone (self-hosted)](https://img.shields.io/drone/build/0x76/counter?logo=drone&server=https%3A%2F%2Fdrone.xirion.net&style=for-the-badge)](https://drone.xirion.net/0x76/counter)
 [![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/0x76/counter?label=docker%20image&logo=docker&sort=date&style=for-the-badge)](https://hub.docker.com/r/0x76/counter)
+[![Codecov](https://img.shields.io/codecov/c/gh/NULLx76/counter?logo=codecov&style=for-the-badge)](https://codecov.io/gh/NULLx76/counter)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](./LICENSE)
 
 Simple Go app for keeping count.
 
