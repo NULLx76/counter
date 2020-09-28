@@ -79,7 +79,7 @@ func TestEtcd(t *testing.T) {
 
 	host := os.Getenv("ETCDHOST")
 	if host == "" {
-		t.Skip("Skipping etcd test as DBHOST is not set up")
+		t.Skip("Skipping etcd test as ETCDHOST is not set up")
 	}
 
 	// Setup
@@ -92,6 +92,33 @@ func TestEtcd(t *testing.T) {
 	e2eTest(t, "localhost:9003")
 
 	log.Info("Finished etcd test")
+	// No cleanup needed
+}
+
+func TestRedis(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
+
+	// You can run etcd as following:
+	// docker run --network host  gcr.io/etcd-development/etcd
+	// then set ETCDHOST=localhost:2379
+
+	host := os.Getenv("REDISHOST")
+	if host == "" {
+		t.Skip("Skipping redis test as REDISHOST is not set up")
+	}
+
+	// Setup
+	err := os.Setenv("DB", string(dbRedis))
+	assert.NoError(t, err)
+	err = os.Setenv("DBHOST", host)
+	assert.NoError(t, err)
+
+	// Start tests
+	e2eTest(t, "localhost:9004")
+
+	log.Info("Finished redis test")
 	// No cleanup needed
 }
 
