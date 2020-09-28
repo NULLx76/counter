@@ -1,7 +1,7 @@
 FROM golang as build
 
 # Force modules
-ARG GIT_SHA=0
+ARG SOURCE_COMMIT=0
 ENV GO111MODULE=on
 
 WORKDIR /build
@@ -13,7 +13,7 @@ RUN go mod download
 
 # Build project
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s -X main.gitHash=${GIT_SHA}" -o counter
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s -X main.gitHash=${SOURCE_COMMIT}" -o counter
 
 # Run stage
 FROM scratch

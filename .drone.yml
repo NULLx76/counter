@@ -24,7 +24,7 @@ steps:
       repo: library/counter
       tags: latest
       build_args:
-        - GIT_SHA=${DRONE_COMMIT}
+        - SOURCE_COMMIT=${DRONE_COMMIT}
 
 services:
   - name: redis
