@@ -68,6 +68,29 @@ func TestBadger(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestEtcd(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
+
+	host := os.Getenv("ETCDHOST")
+	if host == "" {
+		t.Skip("Skipping etcd test as DBHOST is not set up")
+	}
+
+	// Setup
+	err := os.Setenv("DB", string(dbEtcd3))
+	assert.NoError(t, err)
+	err = os.Setenv("DBHOST", host)
+	assert.NoError(t, err)
+
+	// Start tests
+	e2eTest(t, "localhost:9003")
+
+	log.Info("Finished etcd test")
+	// No cleanup needed
+}
+
 func e2eTest(t *testing.T, addr string) {
 	// ensure env is set before calling this func
 	err := os.Setenv("ADDRESS", addr)

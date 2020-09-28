@@ -6,6 +6,8 @@ name: default
 steps:
   - name: test
     image: harbor.xirion.net/hub/library/golang
+    environment:
+      ETCDHOST: etcd:2379
     commands:
       - go build
       - go test -race ./...
@@ -22,3 +24,20 @@ steps:
       tags: latest
       build_args:
         - GIT_SHA=${DRONE_COMMIT}
+
+services:
+  - name: etcd
+    image: gcr.io/etcd-development/etcd:v3.3.25
+    command:
+      - /bin/sh
+        - -c
+        - |
+        exec etcd \
+        --data-dir=/data \
+        --name node1 \
+        --initial-advertise-peer-urls http://0.0.0.0:2380 \
+        --listen-peer-urls http://0.0.0.0:2380
+        --advertise-client-urls http://0.0.0.0:2379 \
+        --listen-client-urls http://0.0.0.0:2379 \
+        --initial-cluster node1=http://0.0.0.0:2380 \
+        --log-level info
