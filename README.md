@@ -1,8 +1,7 @@
 Counter 
 ===
-
-[![Build Status](https://img.shields.io/drone/build/0x76/counter?server=https%3A%2F%2Fdrone.xirion.net&style=for-the-badge)](https://drone.xirion.net/0x76/counter)
-[![Docker Build](https://img.shields.io/docker/cloud/build/0x76/counter?style=for-the-badge)](https://hub.docker.com/r/0x76/counter)
+[![Drone (self-hosted)](https://img.shields.io/drone/build/0x76/counter?logo=drone&server=https%3A%2F%2Fdrone.xirion.net&style=for-the-badge)](https://drone.xirion.net/0x76/counter)
+[![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/0x76/counter?label=docker%20image&logo=docker&sort=date&style=for-the-badge)](https://hub.docker.com/r/0x76/counter)
 
 Simple Go app for keeping count.
 
