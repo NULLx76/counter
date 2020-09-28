@@ -30,8 +30,8 @@ services:
     image: gcr.io/etcd-development/etcd:v3.3.25
     command:
       - /bin/sh
-        - -c
-        - |
+      - -c
+      - |
         exec etcd \
         --data-dir=/data \
         --name node1 \

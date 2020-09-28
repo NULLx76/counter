@@ -73,6 +73,10 @@ func TestEtcd(t *testing.T) {
 		t.Skip()
 	}
 
+	// You can run etcd as following:
+	// docker run --network host  gcr.io/etcd-development/etcd
+	// then set ETCDHOST=localhost:2379
+
 	host := os.Getenv("ETCDHOST")
 	if host == "" {
 		t.Skip("Skipping etcd test as DBHOST is not set up")
