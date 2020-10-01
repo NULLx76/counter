@@ -46,10 +46,10 @@ func main() {
 
 	// Router
 	r := mux.NewRouter()
-	r.PathPrefix("/").Methods("GET").HandlerFunc(rs.GetCounter)
-	r.PathPrefix("/").Methods("PUT").HandlerFunc(rs.IncrementCounter)
-	r.PathPrefix("/").Methods("POST").HandlerFunc(rs.CreateCounter)
-	r.PathPrefix("/").Methods("DELETE").HandlerFunc(rs.DeleteCounter)
+	r.PathPrefix("/").Methods(http.MethodGet).HandlerFunc(rs.GetCounter)
+	r.PathPrefix("/").Methods(http.MethodPatch).HandlerFunc(rs.PatchCounter)
+	r.PathPrefix("/").Methods(http.MethodPost).HandlerFunc(rs.CreateCounter)
+	r.PathPrefix("/").Methods(http.MethodDelete).HandlerFunc(rs.DeleteCounter)
 	r.Use(rootMiddleware)
 
 	srv := &http.Server{

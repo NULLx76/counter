@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -101,8 +103,8 @@ func TestRedis(t *testing.T) {
 	}
 
 	// You can run etcd as following:
-	// docker run --network host  gcr.io/etcd-development/etcd
-	// then set ETCDHOST=localhost:2379
+	// docker run -p 6379:6379 redis
+	// then set REDISHOST=localhost:6379
 
 	host := os.Getenv("REDISHOST")
 	if host == "" {
@@ -144,8 +146,8 @@ func e2eTest(t *testing.T, addr string) {
 	resp, err := client.Do(req)
 	assert.NoError(t, err)
 
-	bytes, err := ioutil.ReadAll(resp.Body)
-	text := string(bytes)
+	bites, err := ioutil.ReadAll(resp.Body)
+	text := string(bites)
 	assert.NoError(t, err)
 	assert.Contains(t, text, gitHash)
 
@@ -183,51 +185,71 @@ func e2eTest(t *testing.T, addr string) {
 
 	assert.Empty(t, resp.Header.Get("Authorization"))
 
-	bytes, err = ioutil.ReadAll(resp.Body)
+	bites, err = ioutil.ReadAll(resp.Body)
 	assert.NoError(t, err)
-	text = string(bytes)
+	text = string(bites)
 
 	assert.Contains(t, text, "/test/yeet")
 	assert.Contains(t, text, "0")
 	assert.NotContains(t, text, token)
 
 	// Increment counter without token
-	req, err = http.NewRequest(http.MethodPut, url+"/test/yeet", nil)
+	req, err = http.NewRequest(http.MethodPatch, url+"/test/yeet", nil)
 	assert.NoError(t, err)
 	resp, err = client.Do(req)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 
-	// Increment counter without correctly
-	req, err = http.NewRequest(http.MethodPut, url+"/test/yeet", nil)
+	// Increment counter correctly
+	b, err := json.Marshal(patchArgs{Op: "increment"})
+	assert.NoError(t, err)
+	req, err = http.NewRequest(http.MethodPatch, url+"/test/yeet", bytes.NewReader(b))
 	assert.NoError(t, err)
 	req.Header.Set("Authorization", "Bearer "+id.String())
 	resp, err = client.Do(req)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-	bytes, err = ioutil.ReadAll(resp.Body)
+	bites, err = ioutil.ReadAll(resp.Body)
 	assert.NoError(t, err)
-	text = string(bytes)
+	text = string(bites)
 	assert.Contains(t, text, "1")
 	assert.Contains(t, text, "/test/yeet")
 
 	// And again
-	req, err = http.NewRequest(http.MethodPut, url+"/test/yeet", nil)
+	b, err = json.Marshal(patchArgs{Op: "decrement"})
+	assert.NoError(t, err)
+	req, err = http.NewRequest(http.MethodPatch, url+"/test/yeet", bytes.NewReader(b))
 	assert.NoError(t, err)
 	req.Header.Set("Authorization", "Bearer "+id.String())
 	resp, err = client.Do(req)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-	bytes, err = ioutil.ReadAll(resp.Body)
+	bites, err = ioutil.ReadAll(resp.Body)
 	assert.NoError(t, err)
-	text = string(bytes)
-	assert.Contains(t, text, "2")
+	text = string(bites)
+	assert.Contains(t, text, "0")
+	assert.Contains(t, text, "/test/yeet")
+
+	// And again
+	b, err = json.Marshal(patchArgs{Op: "decrement"})
+	assert.NoError(t, err)
+	req, err = http.NewRequest(http.MethodPatch, url+"/test/yeet", bytes.NewReader(b))
+	assert.NoError(t, err)
+	req.Header.Set("Authorization", "Bearer "+id.String())
+	resp, err = client.Do(req)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+
+	bites, err = ioutil.ReadAll(resp.Body)
+	assert.NoError(t, err)
+	text = string(bites)
+	assert.Contains(t, text, "-1")
 	assert.Contains(t, text, "/test/yeet")
 
 	// And delete the counter without perm
-	req, err = http.NewRequest(http.MethodPut, url+"/test/yeet", nil)
+	req, err = http.NewRequest(http.MethodDelete, url+"/test/yeet", nil)
 	assert.NoError(t, err)
 	resp, err = client.Do(req)
 	assert.NoError(t, err)
