@@ -22,7 +22,7 @@ type Repository interface {
 	Delete(key string) error
 	// Increment atomically increments the value of the specified key
 	Increment(key string) error
-	// Decrement atomically increments the value of the specified key
+	// Decrement atomically decrements the value of the specified key
 	Decrement(key string) error
 	// Close is the destructor of a repository and should clean up any connection, write back to disk etc.
 	Close() error

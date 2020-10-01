@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"counter/store"
 	"counter/store/mock_store"
 	"encoding/json"
@@ -169,7 +170,12 @@ func helperAuthenticateWrongheader(t *testing.T, header string) {
 	assert.Equal(t, http.StatusUnauthorized, w.Result().StatusCode)
 }
 
-func TestRoutes_IncrementCounter(t *testing.T) {
+func TestRoutes_PatchCounter(t *testing.T){
+	PatchTests(t,"increment")
+	PatchTests(t,"decrement")
+}
+
+func PatchTests(t *testing.T, op string) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -183,21 +189,29 @@ func TestRoutes_IncrementCounter(t *testing.T) {
 	repo := mock_store.NewMockRepository(ctrl)
 
 	repo.EXPECT().Get(uri).Return(v, nil).MinTimes(1)
-	repo.EXPECT().Increment(uri).Return(nil).Times(1)
+	if op == "increment" {
+		repo.EXPECT().Increment(uri).Return(nil).Times(1)
+	} else if op == "decrement" {
+		repo.EXPECT().Decrement(uri).Return(nil).Times(1)
+	} else {
+		t.Fail()
+	}
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodPut, uri, nil)
+	b, err := json.Marshal(patchArgs{Op: op})
+	assert.NoError(t, err)
+	r := httptest.NewRequest(http.MethodPatch, uri, bytes.NewReader(b))
 	r.Header.Set("Authorization", "Bearer "+v.AccessKey.String())
 
 	rs := NewRoutes(repo)
 
-	rs.IncrementCounter(w, r)
+	rs.PatchCounter(w, r)
 
 	res := w.Result()
 	assert.Equal(t, http.StatusOK, res.StatusCode)
 
 	buf := new(strings.Builder)
-	_, err := io.Copy(buf, res.Body)
+	_, err = io.Copy(buf, res.Body)
 	assert.NoError(t, err)
 	assert.Equal(t, marshal(uri, &v), buf.String())
 }
@@ -218,11 +232,11 @@ func TestRoutes_IncrementCounterUnAuth(t *testing.T) {
 	repo.EXPECT().Get(uri).Return(v, nil).MinTimes(1)
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodPut, uri, nil)
+	r := httptest.NewRequest(http.MethodPatch, uri, nil)
 
 	rs := NewRoutes(repo)
 
-	rs.IncrementCounter(w, r)
+	rs.PatchCounter(w, r)
 
 	res := w.Result()
 	assert.Equal(t, http.StatusUnauthorized, res.StatusCode)
@@ -248,7 +262,7 @@ func TestRoutes_IncrementCounterNX(t *testing.T) {
 
 	rs := NewRoutes(repo)
 
-	rs.IncrementCounter(w, r)
+	rs.PatchCounter(w, r)
 
 	res := w.Result()
 	assert.Equal(t, http.StatusNotFound, res.StatusCode)
