@@ -2,6 +2,7 @@ package main
 
 import (
 	"counter/store"
+	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
@@ -65,8 +66,12 @@ func (rs *Routes) GetCounter(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (rs *Routes) IncrementCounter(w http.ResponseWriter, r *http.Request) {
-	log.Tracef("IncrementCounter on %v", r.RequestURI)
+type patchArgs struct {
+	Op string `json:"op"`
+}
+
+func (rs *Routes) PatchCounter(w http.ResponseWriter, r *http.Request) {
+	log.Tracef("PatchCounter on %v", r.RequestURI)
 	c, err := rs.repo.Get(r.RequestURI)
 	if err != nil {
 		http.Error(w, "Couldn't get value from database", http.StatusInternalServerError)
@@ -80,8 +85,25 @@ func (rs *Routes) IncrementCounter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := rs.repo.Increment(r.RequestURI); err != nil {
-		http.Error(w, "Couldn't increment value in database", http.StatusInternalServerError)
+	var args patchArgs
+	if err := json.NewDecoder(r.Body).Decode(&args); err != nil {
+		http.Error(w, "Could not decode json", http.StatusBadRequest)
+		return
+	}
+
+	switch args.Op {
+	case "increment":
+		if err := rs.repo.Increment(r.RequestURI); err != nil {
+			http.Error(w, "Couldn't increment value in database", http.StatusInternalServerError)
+			return
+		}
+	case "decrement":
+		if err := rs.repo.Decrement(r.RequestURI); err != nil {
+			http.Error(w, "Couldn't decrement value in database", http.StatusInternalServerError)
+			return
+		}
+	default:
+		http.Error(w, fmt.Sprintf("Invalid op: %v", args.Op), http.StatusBadRequest)
 		return
 	}
 	rs.GetCounter(w, r)
